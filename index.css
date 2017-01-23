@@ -1,0 +1,54 @@
+body {
+    font-family: 'Roboto Slab', serif;
+}
+
+.pageHeader {
+    text-align: center;
+    font-family: 'Roboto Slab', serif;
+}
+
+.pageHeader nav {
+    width: 98%;
+    margin: 0 auto;
+    border-top: 1px black solid;
+    border-bottom: 1px black solid;
+}
+
+.pageHeader nav a {
+    padding-left: 10%;
+    padding-right: 10%;
+    text-decoration: none;
+    color: black;
+}
+
+.pageHeader nav a:hover {
+    text-decoration: underline;
+}
+
+.mainPageArea {
+    width: 98%;
+    margin: 20px auto;
+}
+
+.cookingQuote {
+    float: left;
+    width: 100%;
+    text-align: center;
+}
+
+.cookingQuote h1 {
+    font-size: 70px;
+}
+
+.cookingImg {
+    width: 50%;
+    float: right;
+    height: 422px;
+    text-align: center;
+}
+
+footer {
+    margin-top: 50%;
+    width: 100%;
+    text-align: center;
+}
