@@ -43,7 +43,7 @@ body {
 
 .recipieTableArea {
     padding-top: 20px;
-    width: 80%;
+    width: 60%;
     margin: 0 auto;
 }
 
@@ -90,4 +90,43 @@ footer {
     width: 98%;
     text-align: center;
     margin: 0 auto;
+}
+
+.recipeImg {
+    float: left;
+    width: 20%;
+    text-align: center;
+    max-width: 400px;
+    max-height: 400px;
+}
+
+.recipeIngredients {
+    float: left;
+    width: 80%;
+}
+
+.recipeHeader {
+    text-align: center;
+}
+
+.centerText {
+    text-align: center;
+}
+
+.row {
+    display: flex;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+.col {
+    flex: 1;
+    padding: 0.5em;
 }
