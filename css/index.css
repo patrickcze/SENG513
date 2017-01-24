@@ -19,6 +19,7 @@ body {
     padding-right: 10%;
     text-decoration: none;
     color: black;
+    font-size: 30px;
 }
 
 .pageHeader nav a:hover {
@@ -85,11 +86,14 @@ body {
     max-width: 100%;
 }
 
-footer {
-    margin-top: 50px;
+.footer {
     width: 98%;
     text-align: center;
-    margin: 0 auto;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 50px;
+    border-top: 1px solid black;
+    border-bottom: 1px solid black;
 }
 
 .recipeImg {
@@ -129,4 +133,8 @@ a:hover {
 .col {
     flex: 1;
     padding: 0.5em;
+}
+
+#pageTitle {
+    font-size: 50px;
 }
