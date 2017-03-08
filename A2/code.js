@@ -1,6 +1,3 @@
-//
-// this is just a stub for a function you need to implement
-//
 function getStats(txt) {
     function getMaxLineLenght(txt) {
         let maxLineLength = 0
