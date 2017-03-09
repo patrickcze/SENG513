@@ -1,11 +1,15 @@
 * {
-    margin: 5px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
     padding: 0;
     box-sizing: border-box;
 }
 
 body {
-    font: 13px Helvetica, Arial;
+    font: 14px Helvetica, Arial;
+}
+
+#main {
+    margin: 60px 0px 0px 0px;
 }
 
 form {
@@ -14,15 +18,11 @@ form {
     position: fixed;
     bottom: 0;
     width: 100%;
+    z-index: 2000;
 }
-
-form input {}
-
-form button {}
 
 #messages {
     list-style-type: none;
-    margin: 0;
     padding: 0;
 }
 
@@ -32,4 +32,34 @@ form button {}
 
 #onlineUsers {
     list-style-type: none;
+}
+
+#postsRow {
+    height: 1000px;
+}
+
+
+/*
+ * Sidebar
+ */
+
+.sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    /* Scrollable contents if viewport is shorter than content. */
+    border-right: 1px solid #eee;
+}
+
+
+/* Sidebar navigation */
+
+.sidebar {
+    padding-left: 10px;
+    padding-right: 10px;
 }

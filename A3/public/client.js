@@ -2,6 +2,19 @@
 $(function () {
     var socket = io();
 
+    allCookies = document.cookie;
+
+    var cookieID = getCookie("chattrid");
+
+    if (cookieID != null) {
+        socket.emit('setupUser', cookieID);
+    } else {
+        socket.emit('setupUser', null);
+    }
+
+    print(allCookies);
+    print(getCookie("chattrid"));
+
     var clientID = "";
     var user;
 
@@ -45,6 +58,8 @@ $(function () {
         clientID = data.id;
         user = data;
 
+        document.cookie = "chattrid=" + clientID;
+
         $('#usernameTitle').text("Your user name is: " + user.nick);
 
         print($('.msg-user-id-' + data.id).text());
@@ -81,6 +96,14 @@ $(function () {
         });
     });
 
+    socket.on('userDisconnect', function (id) {
+        delete connectedUsers[id];
+
+        print("User disconnect");
+        print(connectedUsers);
+        $('#user-nick-id-' + id).remove();
+    });
+
     function connectNewUser(user) {
         $('#onlineUsers').append($('<li id="user-nick-id-' + user.id + '">').text(user.nick));
     }
@@ -88,4 +111,15 @@ $(function () {
 
 function print(any) {
     console.log("Local:", any);
+}
+
+function getCookie(name) {
+    var nameEQ = name + "=";
+    var ca = document.cookie.split(';');
+    for (var i = 0; i < ca.length; i++) {
+        var c = ca[i];
+        while (c.charAt(0) == ' ') c = c.substring(1, c.length);
+        if (c.indexOf(nameEQ) == 0) return c.substring(nameEQ.length, c.length);
+    }
+    return null;
 }

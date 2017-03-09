@@ -12,6 +12,7 @@ app.use(express.static(__dirname + '/public'));
 
 var messages = [];
 var users = {};
+var currentUsers = {};
 var connections = [];
 
 var count = 0;
@@ -19,33 +20,102 @@ var count = 0;
 // listen to 'chat' messages
 io.on('connection', function (socket) {
     connections.push(socket);
-    print('Connected: %s sockets connected', connections.length)
 
-    socket.emit('currentUsers', users);
-
-    count += 1;
-    var id = count;
-
-    users[count] = {
-        id: count,
-        nick: '' + count,
-        color: "#000000"
-    }
-
-    socket.emit('connectUserDetails', users[id]);
-
-    print(users);
-
-    io.emit('newUserConnected', users[id]);
+    socket.emit('currentUsers', currentUsers);
 
     socket.emit('chatHistory', {
         chatHistory: messages
     });
 
+    socket.on('setupUser', function (data) {
+        if (data != null) {
+            var user = users[data];
+            var currentUser = currentUsers[data];
+
+            if (user == null) {
+                count += 1;
+                var id = count;
+
+                users[count] = {
+                    id: count,
+                    nick: '' + count,
+                    color: "#000000"
+                }
+
+                currentUsers[count] = {
+                    id: count,
+                    nick: '' + count,
+                    color: "#000000"
+                }
+
+                socket.emit('connectUserDetails', users[id]);
+
+                print(users);
+
+                io.emit('newUserConnected', users[id]);
+            } else if (currentUser != null) {
+                count += 1;
+                var id = count;
+
+                users[count] = {
+                    id: count,
+                    nick: '' + count,
+                    color: "#000000"
+                }
+
+                currentUsers[count] = {
+                    id: count,
+                    nick: '' + count,
+                    color: "#000000"
+                }
+
+                socket.emit('connectUserDetails', users[id]);
+
+                print(users);
+
+                io.emit('newUserConnected', users[id]);
+            } else {
+                print('Existing user');
+                console.log(data);
+
+                print(users);
+                print(users[data]);
+                currentUsers[data] = user;
+
+                socket.emit('connectUserDetails', user);
+                io.emit('newUserConnected', user);
+            }
+        } else {
+            count += 1;
+            var id = count;
+
+            users[count] = {
+                id: count,
+                nick: '' + count,
+                color: "#000000"
+            }
+
+            currentUsers[count] = {
+                id: count,
+                nick: '' + count,
+                color: "#000000"
+            }
+
+            socket.emit('connectUserDetails', users[id]);
+
+            print(users);
+
+            io.emit('newUserConnected', users[id]);
+        }
+    });
+
     //Handle disconnection
     socket.on('disconnect', function (data) {
-        connections.splice(connections.indexOf(socket, 1));
-        print('Disconnected: %s sockets connected', connections.length);
+        let id = connections.indexOf(socket, 1) + 1;
+        if (id != 0) {
+            delete currentUsers[id];
+            io.emit('userDisconnect', id);
+        }
     });
 
     socket.on('chat', function (msg) {
@@ -122,4 +192,21 @@ function checkForUniqueNick(messageObject) {
         isUnique: unique,
         nickname: newNick
     };
+}
+
+function performNormalNewUserConnection(socket) {
+    count += 1;
+    var id = count;
+
+    users[count] = {
+        id: count,
+        nick: '' + count,
+        color: "#000000"
+    }
+
+    socket.emit('connectUserDetails', users[id]);
+
+    print(users);
+
+    io.emit('newUserConnected', users[id]);
 }
