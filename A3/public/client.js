@@ -32,7 +32,11 @@ $(function () {
     socket.on('chatHistory', function (data) {
         for (i in data.chatHistory) {
             var msg = data.chatHistory[i]
-            $('#messages').append($('<li>').text(msg.timeString + "\t-\t" + msg.user.nick + ": " + msg.msg));
+            $('#messages').append($('<li class="msg-user-id-' + msg.user.id + '">').text(msg.timeString + "\t-\t" + msg.user.nick + ": " + msg.msg));
+
+            $('.msg-user-id-' + msg.user.id).css({
+                "color": msg.user.color
+            });
         }
     });
 
@@ -71,6 +75,10 @@ $(function () {
         $('#usernameTitle').text("Your user name is: " + data.nick);
 
         print(user);
+
+        $('.msg-user-id-' + data.id).css({
+            "color": data.color
+        });
     });
 
     function connectNewUser(user) {

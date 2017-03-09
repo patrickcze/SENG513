@@ -5,7 +5,7 @@ var io = require('socket.io')(http);
 var port = process.env.PORT || 3000;
 
 http.listen(port, function () {
-    console.log('listening on port', port);
+    print('listening on port', port);
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -19,7 +19,7 @@ var count = 0;
 // listen to 'chat' messages
 io.on('connection', function (socket) {
     connections.push(socket);
-    console.log('Connected: %s sockets connected', connections.length)
+    print('Connected: %s sockets connected', connections.length)
 
     socket.emit('currentUsers', users);
 
@@ -34,7 +34,7 @@ io.on('connection', function (socket) {
 
     socket.emit('connectUserDetails', users[id]);
 
-    console.log(users);
+    print(users);
 
     io.emit('newUserConnected', users[id]);
 
@@ -45,7 +45,7 @@ io.on('connection', function (socket) {
     //Handle disconnection
     socket.on('disconnect', function (data) {
         connections.splice(connections.indexOf(socket, 1));
-        console.log('Disconnected: %s sockets connected', connections.length);
+        print('Disconnected: %s sockets connected', connections.length);
     });
 
     socket.on('chat', function (msg) {
@@ -54,10 +54,12 @@ io.on('connection', function (socket) {
 
         msg.timeString = timeString;
 
-        //Check for special test commands
-        // Check for colour change
-        if (msg.msg.indexOf('/nickcolor') >= 0) {
-            console.log('User is attempting to change nickcolour');
+        print(msg.msg.indexOf('/nick'))
+        print(msg.msg.indexOf('/nickcolor'))
+
+        if (msg.msg.indexOf('/nickcolor') !== -1) {
+            print('/nickcolor Command')
+
             var tempuser = users[msg.user.id];
 
             if (tempuser != null) {
@@ -65,20 +67,15 @@ io.on('connection', function (socket) {
                 tempuser.color = tempColor;
 
                 users[msg.user.id] = tempuser;
-                console.log(users);
+                print(users);
             }
-            console.log(tempuser);
+            print(tempuser);
             io.emit('updateUser', tempuser);
-        }
-        //Check for nickname change
-        else if (msg.msg.indexOf('nick') >= 0) {
-            messages.push(msg);
-            console.log(messages);
-            io.emit('chat', msg);
-        } else {
-            console.log('User is attempting to change nick');
 
-            console.log(checkForUniqueNick(msg));
+        } else if (msg.msg.indexOf('/nick') !== -1) {
+            print('/nick Command')
+
+            print(checkForUniqueNick(msg));
 
             var result = checkForUniqueNick(msg);
             if (result.isUnique) {
@@ -90,17 +87,26 @@ io.on('connection', function (socket) {
 
                     users[msg.user.id] = tempuser;
 
-                    console.log(users);
+                    print(users);
                 }
-                console.log(tempuser);
+                print(tempuser);
                 io.emit('updateUser', tempuser);
             } else {
                 //Username is not unique need to pass error back to the client
             }
+        } else {
+            print('normal text message')
+
+            messages.push(msg);
+            print(messages);
+            io.emit('chat', msg);
         }
     });
-
 });
+
+function print(any) {
+    console.log("Server:", any);
+}
 
 function checkForUniqueNick(messageObject) {
     let unique = true;
