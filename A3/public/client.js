@@ -12,8 +12,7 @@ $(function () {
         socket.emit('setupUser', null);
     }
 
-    print(allCookies);
-    print(getCookie("chattrid"));
+    socket.emit('setupUser', null);
 
     var clientID = "";
     var user;
@@ -83,11 +82,15 @@ $(function () {
 
     socket.on('updateUser', function (data) {
         connectedUsers[data.id] = data;
-        user = data;
+
+        if (data.id == user.id) {
+            user = data;
+            $('#usernameTitle').text("Your user name is: " + data.nick);
+        }
+
         print(connectedUsers);
 
         $('#user-nick-id-' + data.id).text(data.nick);
-        $('#usernameTitle').text("Your user name is: " + data.nick);
 
         print(user);
 

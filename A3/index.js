@@ -11,9 +11,10 @@ http.listen(port, function () {
 app.use(express.static(__dirname + '/public'));
 
 var messages = [];
+var connections = [];
+
 var users = {};
 var currentUsers = {};
-var connections = [];
 
 var count = 0;
 
@@ -28,85 +29,116 @@ io.on('connection', function (socket) {
     });
 
     socket.on('setupUser', function (data) {
-        if (data != null) {
-            var user = users[data];
-            var currentUser = currentUsers[data];
+        count += 1;
+        var id = count;
 
-            if (user == null) {
-                count += 1;
-                var id = count;
+        //check if someone is using that id as a username
+        var uniqueResult = checkForUniqueNickname('' + id);
 
-                users[count] = {
-                    id: count,
-                    nick: '' + count,
-                    color: "#000000"
-                }
-
-                currentUsers[count] = {
-                    id: count,
-                    nick: '' + count,
-                    color: "#000000"
-                }
-
-                socket.emit('connectUserDetails', users[id]);
-
-                print(users);
-
-                io.emit('newUserConnected', users[id]);
-            } else if (currentUser != null) {
-                count += 1;
-                var id = count;
-
-                users[count] = {
-                    id: count,
-                    nick: '' + count,
-                    color: "#000000"
-                }
-
-                currentUsers[count] = {
-                    id: count,
-                    nick: '' + count,
-                    color: "#000000"
-                }
-
-                socket.emit('connectUserDetails', users[id]);
-
-                print(users);
-
-                io.emit('newUserConnected', users[id]);
-            } else {
-                print('Existing user');
-                console.log(data);
-
-                print(users);
-                print(users[data]);
-                currentUsers[data] = user;
-
-                socket.emit('connectUserDetails', user);
-                io.emit('newUserConnected', user);
-            }
-        } else {
+        //increase id to a higher number and check if unique
+        while (uniqueResult.isUnique == false) {
             count += 1;
-            var id = count;
-
-            users[count] = {
-                id: count,
-                nick: '' + count,
-                color: "#000000"
-            }
-
-            currentUsers[count] = {
-                id: count,
-                nick: '' + count,
-                color: "#000000"
-            }
-
-            socket.emit('connectUserDetails', users[id]);
-
-            print(users);
-
-            io.emit('newUserConnected', users[id]);
+            id = count;
+            uniqueResult = checkForUniqueNickname('' + id);
         }
+
+        users[id] = {
+            id: id,
+            nick: '' + count,
+            color: "#000000"
+        }
+
+        currentUsers[id] = {
+            id: id,
+            nick: '' + count,
+            color: "#000000"
+        }
+
+        socket.emit('connectUserDetails', users[id]);
+
+        print(users);
+
+        io.emit('newUserConnected', users[id]);
+
+        //        if (data != null) {
+        //            var user = users[data];
+        //            var currentUser = currentUsers[data];
+        //
+        //            if (user == null) {
+        //                count += 1;
+        //                var id = count;
+        //
+        //                users[count] = {
+        //                    id: count,
+        //                    nick: '' + count,
+        //                    color: "#000000"
+        //                }
+        //
+        //                currentUsers[count] = {
+        //                    id: count,
+        //                    nick: '' + count,
+        //                    color: "#000000"
+        //                }
+        //
+        //                socket.emit('connectUserDetails', users[id]);
+        //
+        //                print(users);
+        //
+        //                io.emit('newUserConnected', users[id]);
+        //            } else if (currentUser != null) {
+        //                count += 1;
+        //                var id = count;
+        //
+        //                users[count] = {
+        //                    id: count,
+        //                    nick: '' + count,
+        //                    color: "#000000"
+        //                }
+        //
+        //                currentUsers[count] = {
+        //                    id: count,
+        //                    nick: '' + count,
+        //                    color: "#000000"
+        //                }
+        //
+        //                socket.emit('connectUserDetails', users[id]);
+        //
+        //                print(users);
+        //
+        //                io.emit('newUserConnected', users[id]);
+        //            } else {
+        //                print('Existing user');
+        //                console.log(data);
+        //
+        //                print(users);
+        //                print(users[data]);
+        //                currentUsers[data] = user;
+        //
+        //                socket.emit('connectUserDetails', user);
+        //                io.emit('newUserConnected', user);
+        //            }
+        //        } else {
+        //            count += 1;
+        //            var id = count;
+        //
+        //            users[count] = {
+        //                id: count,
+        //                nick: '' + count,
+        //                color: "#000000"
+        //            }
+        //
+        //            currentUsers[count] = {
+        //                id: count,
+        //                nick: '' + count,
+        //                color: "#000000"
+        //            }
+        //
+        //            socket.emit('connectUserDetails', users[id]);
+        //
+        //            print(users);
+        //
+        //            io.emit('newUserConnected', users[id]);
+        //        }
     });
 
     //Handle disconnection
@@ -137,6 +169,7 @@ io.on('connection', function (socket) {
                 tempuser.color = tempColor;
 
                 users[msg.user.id] = tempuser;
+                currentUsers[msg.user.id] = tempuser;
                 print(users);
             }
             print(tempuser);
@@ -156,6 +189,7 @@ io.on('connection', function (socket) {
                     tempuser.nick = result.nickname;
 
                     users[msg.user.id] = tempuser;
+                    currentUsers[msg.user.id] = tempuser;
 
                     print(users);
                 }
@@ -176,6 +210,22 @@ io.on('connection', function (socket) {
 
 function print(any) {
     console.log("Server:", any);
+}
+
+function checkForUniqueNickname(name) {
+    let unique = true;
+    let newNick = name;
+
+    for (i in users) {
+        if (users[i].nick === newNick) {
+            unique = false;
+        }
+    }
+
+    return {
+        isUnique: unique,
+        nickname: newNick
+    };
 }
 
 function checkForUniqueNick(messageObject) {
