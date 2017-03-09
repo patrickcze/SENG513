@@ -12,8 +12,6 @@ $(function () {
         socket.emit('setupUser', null);
     }
 
-    socket.emit('setupUser', null);
-
     var clientID = "";
     var user;
 
