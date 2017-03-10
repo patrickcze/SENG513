@@ -6,6 +6,7 @@ $(function () {
 
     var cookieID = getCookie("chattrid");
 
+    // determine if the user should be setup from a cookie
     if (cookieID != null) {
         socket.emit('setupUser', cookieID);
     } else {
@@ -26,8 +27,30 @@ $(function () {
         return false;
     });
 
+    socket.on('errorChangingNick', function (data) {
+        $.notify({
+            // options
+            message: 'Error - Nickname already taken!',
+            icon: 'glyphicon glyphicon-warning-sign'
+        }, {
+            // settings
+            type: 'danger',
+            placement: {
+                from: "top",
+                align: "center"
+            },
+            animate: {
+                enter: 'animated fadeInDown',
+                exit: 'animated fadeOutUp'
+            },
+            delay: 3000
+        });
+    });
+
     socket.on('chat', function (data) {
         $('#messages').append($('<li class="msg-user-id-' + data.user.id + '">').text(data.timeString + "\t-\t" + data.user.nick + ": " + data.msg));
+
+        $('body').scrollTop($('#messages li').last().position().top + $('#messages li').last().height());
 
         $('.msg-user-id-' + data.user.id).css({
             "color": data.user.color
@@ -47,6 +70,9 @@ $(function () {
             $('.msg-user-id-' + msg.user.id).css({
                 "color": msg.user.color
             });
+        }
+        if (data.chatHistory.length > 0) {
+            $('body').scrollTop($('#messages li').last().position().top + $('#messages li').last().height());
         }
     });
 

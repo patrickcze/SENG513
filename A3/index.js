@@ -20,14 +20,20 @@ var count = 0;
 
 // listen to 'chat' messages
 io.on('connection', function (socket) {
-    connections.push(socket);
+    connections.push({
+        "id": -1,
+        "socket": socket
+    });
 
+    // Send out the list of currently connected users 
     socket.emit('currentUsers', currentUsers);
 
+    // Send out the existing chat history in memory
     socket.emit('chatHistory', {
         chatHistory: messages
     });
 
+    // Setup the user on connection
     socket.on('setupUser', function (data) {
         //Working with Cookies
         if (data != null) {
@@ -48,6 +54,12 @@ io.on('connection', function (socket) {
                     count += 1;
                     id = count;
                     uniqueResult = checkForUniqueNickname('' + id);
+                }
+
+                for (index in connections) {
+                    if (connections[index].socket === socket) {
+                        connections[index].id = id;
+                    }
                 }
 
                 users[id] = {
@@ -80,6 +92,12 @@ io.on('connection', function (socket) {
                     count += 1;
                     id = count;
                     uniqueResult = checkForUniqueNickname('' + id);
+                }
+
+                for (index in connections) {
+                    if (connections[index].socket === socket) {
+                        connections[index].id = id;
+                    }
                 }
 
                 users[id] = {
@@ -126,6 +144,12 @@ io.on('connection', function (socket) {
                 uniqueResult = checkForUniqueNickname('' + id);
             }
 
+            for (index in connections) {
+                if (connections[index].socket === socket) {
+                    connections[index].id = id;
+                }
+            }
+
             users[id] = {
                 id: id,
                 nick: '' + count,
@@ -148,22 +172,23 @@ io.on('connection', function (socket) {
 
     //Handle disconnection
     socket.on('disconnect', function (data) {
-        let id = connections.indexOf(socket, 1) + 1;
-        if (id != 0) {
-            delete currentUsers[id];
-            io.emit('userDisconnect', id);
+        for (index in connections) {
+            if (connections[index].socket === socket) {
+                let id = connections[index].id;
+                delete currentUsers[id];
+                io.emit('userDisconnect', id);
+            }
         }
     });
 
+    // Handle new chat messages
     socket.on('chat', function (msg) {
         var timestamp = new Date();
         var timeString = timestamp.getHours() + ':' + timestamp.getMinutes() + ':' + timestamp.getSeconds();
 
         msg.timeString = timeString;
 
-        print(msg.msg.indexOf('/nick'))
-        print(msg.msg.indexOf('/nickcolor'))
-
+        // Handle special messages to change the color of nickname commands
         if (msg.msg.indexOf('/nickcolor') !== -1) {
             print('/nickcolor Command')
 
@@ -202,6 +227,7 @@ io.on('connection', function (socket) {
                 io.emit('updateUser', tempuser);
             } else {
                 //Username is not unique need to pass error back to the client
+                socket.emit('errorChangingNick', msg);
             }
         } else {
             print('normal text message')
@@ -217,6 +243,7 @@ function print(any) {
     console.log("Server:", any);
 }
 
+//Determines if the nickname is unique
 function checkForUniqueNickname(name) {
     let unique = true;
     let newNick = name;
@@ -233,6 +260,7 @@ function checkForUniqueNickname(name) {
     };
 }
 
+//Determines if the nickname is unique
 function checkForUniqueNick(messageObject) {
     let unique = true;
     let newNick = messageObject.msg.replace('/nick ', '').trim();
@@ -247,21 +275,4 @@ function checkForUniqueNick(messageObject) {
         isUnique: unique,
         nickname: newNick
     };
-}
-
-function performNormalNewUserConnection(socket) {
-    count += 1;
-    var id = count;
-
-    users[count] = {
-        id: count,
-        nick: '' + count,
-        color: "#000000"
-    }
-
-    socket.emit('connectUserDetails', users[id]);
-
-    print(users);
-
-    io.emit('newUserConnected', users[id]);
 }
